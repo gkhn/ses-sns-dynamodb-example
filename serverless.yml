@@ -1,0 +1,47 @@
+service: ServerlessSesSns
+
+provider:
+  name: aws
+  runtime: nodejs8.10
+  environment:
+    DDB_TABLE_NAME: messages
+    SQS_URL: https://sqs.us-east-1.amazonaws.com/112108423211/messages-serverless
+  iamRoleStatements: 
+    - Effect: Allow
+      Action: 
+        - dynamodb:DescribeTable
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource: arn:aws:dynamodb:us-east-1:*:*
+    - Effect: Allow
+      Action:
+        - sqs:*
+      Resource: arn:aws:sqs:us-east-1:112108423211:messages-serverless
+    - Effect: Allow
+      Action:
+        - sns:*
+        - ses:*
+      Resource: "*"
+
+functions:
+  getMessages:
+    handler: handlers.getMessages
+    events:
+      - http:
+          path: getMessages
+          method: get
+  queueMessage:
+    handler: handlers.queueMessage
+    events:
+      - http:
+          path: queueMessage
+          method: post
+  sendMessage:
+    handler: handlers.sendMessage
+    events:
+      - sqs: arn:aws:sqs:us-east-1:112108423211:messages-serverless
+

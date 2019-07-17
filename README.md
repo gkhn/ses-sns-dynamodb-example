@@ -1,0 +1,2 @@
+# ses-sns-dynamodb-example
+ 
